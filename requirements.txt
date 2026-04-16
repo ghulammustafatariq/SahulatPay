@@ -1,0 +1,42 @@
+# ── Web Framework ─────────────────────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+gunicorn==21.2.0
+python-multipart==0.0.9
+
+# ── Database ──────────────────────────────────────────────────────────────────
+sqlalchemy[asyncio]==2.0.30
+asyncpg==0.29.0
+alembic==1.13.1
+
+# ── Settings & Validation ─────────────────────────────────────────────────────
+pydantic==2.7.1
+pydantic-settings==2.3.0
+
+# ── Auth & Security ───────────────────────────────────────────────────────────
+bcrypt==4.1.3
+python-jose[cryptography]==3.3.0
+cryptography==42.0.7
+
+# ── HTTP Client (Infobip OTP + external APIs) ─────────────────────────────────
+httpx==0.27.0
+
+# ── Rate Limiting ─────────────────────────────────────────────────────────────
+slowapi==0.1.9
+
+# ── Scheduler (auto-deduction + monthly card reset) ───────────────────────────
+apscheduler==3.10.4
+
+# ── Firebase FCM ──────────────────────────────────────────────────────────────
+firebase-admin==6.5.0
+
+# ── AI — DeepSeek via OpenAI SDK ──────────────────────────────────────────────
+openai==1.35.0
+
+# ── KYC — Cloudinary + OCR + Face++ ──────────────────────────────────────────
+cloudinary==1.40.0
+aiohttp==3.9.5                  # async HTTP for OCR.space + Face++ + metals.live
+
+# ── QR Code ───────────────────────────────────────────────────────────────────
+qrcode[pil]==7.4.2
+pillow==10.3.0
