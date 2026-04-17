@@ -12,24 +12,25 @@ from config import settings
 from database import Base
 
 # Import all models so Alembic autogenerate picks them up
-# Uncomment each after Prompt 02 creates the model files:
-# import models.user
-# import models.wallet
-# import models.transaction
-# import models.card
-# import models.kyc
-# import models.savings
-# import models.finance
-# import models.rewards
-# import models.social
-# import models.ai
-# import models.bank
-# import models.other
+import models.user
+import models.wallet
+import models.transaction
+import models.card
+import models.kyc
+import models.savings
+import models.finance
+import models.rewards
+import models.social
+import models.ai
+import models.bank
+import models.other
 
 config = context.config
 
 # Set DB URL from config.py (overrides blank alembic.ini value)
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Escape % as %% — Alembic's configparser treats % as interpolation syntax,
+# which breaks URL-encoded passwords like Mustafa%401122
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
