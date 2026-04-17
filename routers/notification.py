@@ -1,6 +1,4 @@
 """Notifications router — list, unread count, mark read, delete. PROMPT 13."""
-from __future__ import annotations
-
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException

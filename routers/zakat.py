@@ -1,6 +1,4 @@
 """Zakat router — live rates, calculate, pay, history. PROMPT 13."""
-from __future__ import annotations
-
 from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID

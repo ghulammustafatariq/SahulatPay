@@ -171,21 +171,21 @@ deactivate
 | PROMPT 01 | Project Setup | ✅ Done |
 | PROMPT 02 | All DB Models (30 tables) | ✅ Done |
 | PROMPT 03 | Auth Router + Service | ✅ Done |
-| PROMPT 04 | Wallet Router | ⬜ Pending |
-| PROMPT 05 | Cards Router | ⬜ Pending |
-| PROMPT 05b | Card Subscriptions | ⬜ Pending |
-| PROMPT 06 | Savings + Scheduler | ⬜ Pending |
-| PROMPT 07 | Transactions Router | ⬜ Pending |
-| PROMPT 08 | KYC Router | ⬜ Pending |
-| PROMPT 09 | Finance Router | ⬜ Pending |
-| PROMPT 10 | Splits + Trusted Circle | ⬜ Pending |
-| PROMPT 11 | Rewards Router | ⬜ Pending |
-| PROMPT 12 | AI / DeepSeek Router | ⬜ Pending |
-| PROMPT 13 | Zakat + Notifications + FCM | ⬜ Pending |
-| PROMPT 14 | Banking Router | ⬜ Pending |
-| PROMPT 15 | External Wallets Router | ⬜ Pending |
-| PROMPT 16 | Admin Router | ⬜ Pending |
-| PROMPT 17 | Security Hardening | ⬜ Pending |
-| PROMPT 18 | Railway Deploy + Final | ⬜ Pending |
+| PROMPT 04 | Wallet Router | ✅ Done |
+| PROMPT 05 | Cards Router | ✅ Done |
+| PROMPT 05b | Card Subscriptions | ✅ Done |
+| PROMPT 06 | Savings + Scheduler | ✅ Done |
+| PROMPT 07 | Transactions Router | ✅ Done |
+| PROMPT 08 | KYC Router | ✅ Done |
+| PROMPT 09 | Finance Router | ✅ Done |
+| PROMPT 10 | Splits + Trusted Circle | ✅ Done |
+| PROMPT 11 | Rewards Router | ✅ Done |
+| PROMPT 12 | AI / DeepSeek Router | ✅ Done |
+| PROMPT 13 | Zakat + Notifications + FCM | ✅ Done |
+| PROMPT 14 | Admin Router | ✅ Done |
+| PROMPT 15 | Users Router (Profile, Devices, QR) | ✅ Done |
+| PROMPT 16 | Banking Router | ✅ Done |
+| PROMPT 17 | Security Hardening | ✅ Done |
+| PROMPT 18 | Railway Deploy + Final | ✅ Done |
 
 > Update status as you complete each prompt.

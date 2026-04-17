@@ -1,6 +1,4 @@
 """Social router — SmartSplit + Trusted Circle. PROMPT 10."""
-from __future__ import annotations
-
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Literal, Optional

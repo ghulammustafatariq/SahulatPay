@@ -119,6 +119,9 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
 from routers import kyc
 app.include_router(kyc.router, prefix="/api/v1/users", tags=["KYC"])
 
+from routers import user
+app.include_router(user.router, prefix="/api/v1/users", tags=["Users"])
+
 from routers import wallet
 app.include_router(wallet.router, prefix="/api/v1/wallets", tags=["Wallet"])
 
@@ -161,17 +164,17 @@ app.include_router(rewards.router, prefix="/api/v1/rewards", tags=["Rewards"])
 from routers import social
 app.include_router(social.router, prefix="/api/v1", tags=["Social"])
 
-# from routers import ai
-# app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI"])
+from routers import ai
+app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI"])
 
-# from routers import zakat
-# app.include_router(zakat.router, prefix="/api/v1/zakat", tags=["Zakat"])
+from routers import zakat
+app.include_router(zakat.router, prefix="/api/v1/zakat", tags=["Zakat"])
 
-# from routers import notification
-# app.include_router(notification.router, prefix="/api/v1/notifications", tags=["Notifications"])
+from routers import notification
+app.include_router(notification.router, prefix="/api/v1/notifications", tags=["Notifications"])
 
-# from routers import banking
-# app.include_router(banking.router, prefix="/api/v1/banking", tags=["Banking"])
+from routers import banking
+app.include_router(banking.router, prefix="/api/v1/banking", tags=["Banking"])
 
-# from routers import admin
-# app.include_router(admin.router, prefix="/api/v1/admin", tags=["Admin"])
+from routers import admin
+app.include_router(admin.router, prefix="/api/v1/admin", tags=["Admin"])

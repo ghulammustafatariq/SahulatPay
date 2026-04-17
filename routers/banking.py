@@ -1,6 +1,4 @@
 """Banking router — link/unlink bank accounts (Fernet encrypted). PROMPT 16."""
-from __future__ import annotations
-
 from datetime import datetime, timezone, timedelta
 from uuid import UUID
 

@@ -1,6 +1,4 @@
 """Users router — profile, QR, photo, devices, FCM token. PROMPT 15."""
-from __future__ import annotations
-
 import base64
 import io
 from datetime import datetime, timezone, timedelta

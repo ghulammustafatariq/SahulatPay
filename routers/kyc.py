@@ -1,6 +1,4 @@
 """KYC router — CNIC upload, liveness check, fingerprint, business docs. PROMPT 08."""
-from __future__ import annotations
-
 import asyncio
 import hashlib
 from datetime import datetime, timezone

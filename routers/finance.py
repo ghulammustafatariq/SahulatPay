@@ -1,6 +1,4 @@
 """Finance router — Investments, Insurance, High-Yield Deposits. PROMPT 09."""
-from __future__ import annotations
-
 import bcrypt
 from datetime import date, datetime, timezone, timedelta
 from decimal import Decimal

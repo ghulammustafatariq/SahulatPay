@@ -1,6 +1,4 @@
 """AI router — DeepSeek chat, insights, health score, roast. PROMPT 12."""
-from __future__ import annotations
-
 from datetime import datetime, timezone, timedelta
 from uuid import UUID
 
