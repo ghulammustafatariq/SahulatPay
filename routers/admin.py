@@ -86,7 +86,7 @@ async def dashboard(
     total_users    = (await db.execute(select(func.count(User.id)))).scalar() or 0
     active_users   = (await db.execute(select(func.count(User.id)).where(User.is_active == True))).scalar() or 0
     locked_users   = (await db.execute(select(func.count(User.id)).where(User.is_locked == True))).scalar() or 0
-    kyc_queue      = (await db.execute(select(func.count(Document.id)).where(Document.is_verified == False))).scalar() or 0
+    kyc_queue      = (await db.execute(select(func.count(Document.id)).where(User.cnic_verified == False).join(User, Document.user_id == User.id))).scalar() or 0
     total_txns     = (await db.execute(select(func.count(Transaction.id)))).scalar() or 0
     total_volume   = (await db.execute(select(func.coalesce(func.sum(Transaction.amount), 0)).where(Transaction.status == "completed"))).scalar() or 0
     open_fraud     = (await db.execute(select(func.count(FraudFlag.id)).where(FraudFlag.is_resolved == False))).scalar() or 0
@@ -228,7 +228,9 @@ async def kyc_queue(
     db: AsyncSession = Depends(get_db),
 ):
     docs = (await db.execute(
-        select(Document).where(Document.is_verified == False)
+        select(Document)
+        .join(User, Document.user_id == User.id)
+        .where(User.cnic_verified == False)
         .order_by(Document.uploaded_at).offset((page - 1) * per_page).limit(per_page)
     )).scalars().all()
     return {
@@ -252,7 +254,14 @@ async def approve_kyc(doc_id: UUID, body: KycDecisionRequest, admin: User = Depe
     doc = (await db.execute(select(Document).where(Document.id == doc_id))).scalar_one_or_none()
     if not doc:
         raise HTTPException(404, "Document not found.")
-    doc.is_verified = True
+    user = (await db.execute(select(User).where(User.id == doc.user_id))).scalar_one_or_none()
+    if user:
+        if doc.document_type in ("cnic_front", "cnic_back"):
+            user.cnic_verified = True
+            user.verification_tier = max(user.verification_tier or 0, 2)
+        elif doc.document_type == "liveness_selfie":
+            user.biometric_verified = True
+            user.verification_tier = max(user.verification_tier or 0, 3)
     await db.commit()
     await log_admin_action(db, admin.id, "approve_kyc", doc.user_id, "user", body.reason or "KYC approved", {"doc_id": str(doc_id)})
     await send_notification(db, doc.user_id, "KYC Approved ✅", f"Your {doc.document_type.replace('_', ' ')} has been verified.", "system")
@@ -410,7 +419,7 @@ async def list_all_cards(
     return {
         "cards": [
             {"id": c.id, "user_id": c.user_id, "card_type": c.card_type, "status": c.status,
-             "last_four": c.last_four, "network": c.network, "delivery_status": c.delivery_status,
+             "last_four": c.last_four, "network": c.card_network, "delivery_status": c.delivery_status,
              "created_at": c.created_at.isoformat() if c.created_at else None}
             for c in cards
         ],
@@ -489,7 +498,7 @@ async def approve_business(profile_id: UUID, body: KycDecisionRequest, admin: Us
     profile = (await db.execute(select(BusinessProfile).where(BusinessProfile.id == profile_id))).scalar_one_or_none()
     if not profile:
         raise HTTPException(404, "Business profile not found.")
-    profile.verification_status = "approved"
+    profile.verification_status = "verified"
     await db.commit()
     await log_admin_action(db, admin.id, "approve_business", profile.user_id, "user", body.reason or "Approved")
     await send_notification(db, profile.user_id, "Business Verified ✅", f"{profile.business_name} has been verified.", "system")
@@ -658,7 +667,7 @@ async def savings_overview(admin: User = Depends(require_admin), db: AsyncSessio
     total_goals      = (await db.execute(select(func.count(SavingGoal.id)))).scalar() or 0
     active_goals     = (await db.execute(select(func.count(SavingGoal.id)).where(SavingGoal.is_completed == False))).scalar() or 0
     completed_goals  = (await db.execute(select(func.count(SavingGoal.id)).where(SavingGoal.is_completed == True))).scalar() or 0
-    auto_deduct_on   = (await db.execute(select(func.count(SavingGoal.id)).where(SavingGoal.auto_deduct == True))).scalar() or 0
+    auto_deduct_on   = (await db.execute(select(func.count(SavingGoal.id)).where(SavingGoal.auto_deduct_enabled == True))).scalar() or 0
     total_saved      = (await db.execute(select(func.coalesce(func.sum(SavingGoal.saved_amount), 0)))).scalar() or 0
     return {
         "total_goals": total_goals, "active_goals": active_goals,
