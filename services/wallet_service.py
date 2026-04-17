@@ -143,6 +143,13 @@ async def _execute_transfer(
         body=f"From {sender.full_name}. Ref: {ref}",
     ))
 
+    # ── Cashback 1% on every outgoing transfer ────────────────────────────────
+    try:
+        from services.reward_service import add_cashback
+        await add_cashback(db, sender.id, amount, sender_txn.id, purpose)
+    except Exception as _cb_err:
+        print(f"[wallet_service] cashback error (non-fatal): {_cb_err}")
+
     return {
         "status":           "completed",
         "reference_number": ref,

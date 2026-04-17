@@ -152,14 +152,14 @@ app.include_router(card.router, prefix="/api/v1/cards", tags=["Cards"])
 from routers import savings
 app.include_router(savings.router, prefix="/api/v1/savings", tags=["Savings"])
 
-# from routers import finance
-# app.include_router(finance.router, prefix="/api/v1", tags=["Finance"])
+from routers import finance
+app.include_router(finance.router, prefix="/api/v1", tags=["Finance"])
 
-# from routers import rewards
-# app.include_router(rewards.router, prefix="/api/v1/rewards", tags=["Rewards"])
+from routers import rewards
+app.include_router(rewards.router, prefix="/api/v1/rewards", tags=["Rewards"])
 
-# from routers import social
-# app.include_router(social.router, prefix="/api/v1", tags=["Social"])
+from routers import social
+app.include_router(social.router, prefix="/api/v1", tags=["Social"])
 
 # from routers import ai
 # app.include_router(ai.router, prefix="/api/v1/ai", tags=["AI"])
