@@ -177,14 +177,12 @@ async def register(
         if existing_email:
             raise HTTPException(status_code=409, detail="Email already registered")
 
-    # CNIC → age extraction (optional)
-    dob, age, cnic_masked = None, None, None
-    if body.cnic_number:
-        try:
-            dob, age = extract_age_from_cnic(body.cnic_number)
-            cnic_masked = body.cnic_number[:6] + "XXXXXXX-X"
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+    # CNIC → age extraction (required)
+    try:
+        dob, age = extract_age_from_cnic(body.cnic_number)
+        cnic_masked = body.cnic_number[:6] + "XXXXXXX-X"
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     # ── Create user (tier 1, is_verified=True — phone already verified by Firebase) ──
     user = User(

@@ -14,7 +14,7 @@ class RegisterRequest(BaseModel):
     full_name:          str               = Field(..., min_length=2, max_length=255)
     password:           str               = Field(..., min_length=8, max_length=128)
     country:            str               = Field(default="Pakistan", max_length=100)
-    cnic_number:        Optional[str]     = Field(default=None, description="XXXXX-XXXXXXX-X (optional)")
+    cnic_number:        str               = Field(..., pattern=r"^\d{5}-\d{7}-\d{1}$", description="XXXXX-XXXXXXX-X — required for AML/KYC compliance")
     account_type:       Literal["individual", "business"] = "individual"
     device_fingerprint: str               = Field(..., min_length=16, max_length=255,
                                                    description="SHA-256(device_id+model+os). Becomes a trusted device.")
