@@ -1,15 +1,11 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from config import settings
-
-# ── Rate limiter (shared across all routers) ──────────────────────────────────
-limiter = Limiter(key_func=get_remote_address)
+from config  import settings
+from limiter import limiter
 
 
 # ── Lifespan (startup / shutdown) ─────────────────────────────────────────────
@@ -97,21 +93,9 @@ async def health():
     return {"status": "ok", "environment": settings.ENVIRONMENT}
 
 
-# ── Dev OTP endpoint (DEV_MODE only) ─────────────────────────────────────────
-DEV_OTP_STORE: dict[str, str] = {}   # phone → raw OTP; populated by auth_service
-
-if settings.DEV_MODE:
-    @app.get("/api/v1/auth/dev/otp/{phone}", tags=["Dev"])
-    async def dev_get_otp(phone: str):
-        otp = DEV_OTP_STORE.get(phone)
-        if not otp:
-            return JSONResponse(status_code=404, content={"detail": "No OTP for this phone"})
-        return {"phone": phone, "otp": otp}
-
-
 # ── Routers — uncomment as each prompt is completed ──────────────────────────
-# from routers import auth
-# app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
+from routers import auth
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
 
 # from routers import user
 # app.include_router(user.router, prefix="/api/v1/users", tags=["Users & KYC"])
