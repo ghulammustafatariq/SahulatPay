@@ -139,7 +139,7 @@ async def _get_card_or_404(card_id: UUID, user_id: UUID, db: AsyncSession) -> Vi
 # POST /cards/issue
 # ══════════════════════════════════════════════════════════════════════════════
 @router.post("/issue", response_model=CardResponse, status_code=201)
-@limiter.limit("5/hour")
+@limiter.limit("10/day")
 async def issue_card(
     request: Request,
     body: CardIssueRequest,
