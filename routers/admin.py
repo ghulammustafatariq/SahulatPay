@@ -75,6 +75,19 @@ async def log_admin_action(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# GET /admin/key  — bootstrap (JWT-only, no X-Admin-Key needed)
+# ══════════════════════════════════════════════════════════════════════════════
+@router.get("/key")
+async def get_admin_key(current_user: User = Depends(get_current_user)):
+    """Return ADMIN_SECRET_KEY to superuser for use as X-Admin-Key header."""
+    if not current_user.is_superuser:
+        raise HTTPException(403, "Superuser access required.")
+    if not settings.ADMIN_SECRET_KEY:
+        raise HTTPException(503, "ADMIN_SECRET_KEY not configured on server.")
+    return {"admin_key": settings.ADMIN_SECRET_KEY}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # GET /admin/dashboard
 # ══════════════════════════════════════════════════════════════════════════════
 @router.get("/dashboard")

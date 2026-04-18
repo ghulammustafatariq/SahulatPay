@@ -287,6 +287,17 @@ async def login(request: Request, body: LoginRequest, db: AsyncSession = Depends
         await _log_login(db, request, user.id, phone, body.device_fingerprint, False, "not_verified")
         raise HTTPException(status_code=403, detail="Phone not verified. Complete OTP verification first.")
 
+    # ── Superuser bypass — admin panel skips device trust / OTP flow ──────────
+    if user.is_superuser:
+        tokens = await _issue_tokens(db, user, body.device_fingerprint)
+        await _log_login(db, request, user.id, phone, body.device_fingerprint, True, "superuser_direct")
+        return LoginResponse(
+            status="authenticated",
+            tokens=tokens,
+            message="Admin login successful.",
+            is_superuser=True,
+        )
+
     # Device check
     dev_res = await db.execute(
         select(DeviceRegistry).where(

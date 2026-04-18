@@ -88,6 +88,7 @@ class LoginResponse(BaseModel):
     tokens:        Optional[TokenPair] = None
     session_token: Optional[str]       = None
     message:       str
+    is_superuser:  Optional[bool]      = None
 
 
 class RefreshRequest(BaseModel):
