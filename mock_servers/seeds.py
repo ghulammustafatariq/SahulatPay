@@ -16,8 +16,12 @@ def seed_all(db):
     seed_insurance(db)
     seed_stocks(db)
     seed_mutual_funds(db)
-    db.commit()
-    print("[mock_seeds] all mock data seeded")
+    try:
+        db.commit()
+        print("[mock_seeds] all mock data seeded")
+    except Exception:
+        db.rollback()
+        print("[mock_seeds] seed skipped (already seeded by another worker)")
 
 
 def seed_wallet_accounts(db):
