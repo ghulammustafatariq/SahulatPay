@@ -239,12 +239,6 @@ async def otp_verify(body: OtpVerifyRequest, db: AsyncSession = Depends(get_db))
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # Registration now uses Firebase Phone Auth in /register — no OTP step needed.
-    # This endpoint handles: password_reset, security_change, bank_link, new_device.
-    if body.purpose == "registration":
-        raise HTTPException(status_code=400,
-            detail="Registration uses Firebase Phone Auth. Call /register with firebase_id_token.")
-
     ok = await _verify_and_consume_otp(db, phone, body.otp, body.purpose)
     if not ok:
         raise HTTPException(status_code=400, detail="Invalid or expired OTP")
