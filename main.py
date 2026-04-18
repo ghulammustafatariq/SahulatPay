@@ -40,12 +40,22 @@ async def lifespan(app: FastAPI):
     from scheduler.card_scheduler import start_card_scheduler, stop_card_scheduler
     start_card_scheduler()
 
+    # Metal rate cache — fetches gold/silver prices every hour (Zakat)
+    from scheduler.metal_rate_scheduler import start_metal_rate_scheduler, stop_metal_rate_scheduler
+    start_metal_rate_scheduler()
+
+    # Hawl notification — daily Zakat due-date + reminder notifications
+    from scheduler.hawl_scheduler import start_hawl_scheduler, stop_hawl_scheduler
+    start_hawl_scheduler()
+
     yield
 
     # ── Shutdown ──
     stop_subscription_scheduler()
     stop_savings_scheduler()
     stop_card_scheduler()
+    stop_metal_rate_scheduler()
+    stop_hawl_scheduler()
     print("[shutdown] server stopping")
 
 
@@ -148,6 +158,9 @@ app.include_router(mock_intl.router,       prefix="/mock/international", tags=["
 app.include_router(mock_insurance.router,  prefix="/mock/insurance",     tags=["Mock: Insurance"])
 app.include_router(mock_investments.router,prefix="/mock/investments",   tags=["Mock: Investments"])
 app.include_router(mock_qr.router,         prefix="/mock/qr",            tags=["Mock: QR"])
+
+from mock_servers import dashboard as mock_dashboard
+app.include_router(mock_dashboard.router,  prefix="/mock/dashboard",      tags=["Mock: Dashboard"])
 
 from routers import card
 app.include_router(card.router, prefix="/api/v1/cards", tags=["Cards"])
