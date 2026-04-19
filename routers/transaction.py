@@ -21,6 +21,7 @@ from models.transaction import Transaction
 from services.auth_service import get_current_user, normalize_phone
 from services.notification_service import send_notification
 from services.wallet_service import doTransfer, decode_pending_tx_token, generate_reference, TIER_LIMITS
+from services.platform_ledger import ledger_credit, make_idem_key
 from schemas.transaction import (
     SendRequest, SendResponse,
     ConfirmBiometricRequest,
@@ -260,6 +261,12 @@ async def mobile_topup(
         tx_metadata={"phone": body.phone, "network": network, "method": "topup"},
     )
     db.add(txn)
+    await ledger_credit(
+        db, "main_float", body.amount,
+        make_idem_key("topup", str(current_user.id), ref),
+        user_id=current_user.id, reference=ref,
+        note=f"Mobile top-up {network.capitalize()} {body.phone}",
+    )
     await db.commit()
     await db.refresh(wallet)
     return TopupResponse(
@@ -312,6 +319,12 @@ async def pay_bill(
         tx_metadata={"category": body.category, "consumer_id": body.consumer_id},
     )
     db.add(txn)
+    await ledger_credit(
+        db, "main_float", body.amount,
+        make_idem_key("bill_pay", str(current_user.id), ref),
+        user_id=current_user.id, reference=ref,
+        note=f"Bill payment — {body.category} {body.consumer_id}",
+    )
     await db.commit()
     await db.refresh(wallet)
     return BillPayResponse(

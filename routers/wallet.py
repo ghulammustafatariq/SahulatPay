@@ -20,6 +20,7 @@ from services.wallet_service import (
     generate_reference,
     TIER_LIMITS,
 )
+from services.platform_ledger import ledger_credit, make_idem_key
 from schemas.wallet import (
     WalletResponse, TransactionSummary,
     DepositRequest, DepositResponse,
@@ -151,6 +152,12 @@ async def deposit(
         },
     )
     db.add(txn)
+    await ledger_credit(
+        db, "main_float", body.amount,
+        make_idem_key("deposit", str(current_user.id), ref),
+        user_id=current_user.id, reference=ref,
+        note=f"Deposit via {body.method}",
+    )
     await db.commit()
     await db.refresh(txn)
     await db.refresh(wallet)

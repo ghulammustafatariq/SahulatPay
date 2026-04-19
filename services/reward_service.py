@@ -91,7 +91,9 @@ async def claim_cashback(db: AsyncSession, user_id: UUID) -> Decimal:
 
     wallet = (await db.execute(select(Wallet).where(Wallet.user_id == user_id))).scalar_one_or_none()
     if wallet:
-        wallet.balance += amount
+        wallet.balance          += amount
+        wallet.cashback_pending  = Decimal("0")
+        wallet.cashback_claimed  = (wallet.cashback_claimed or Decimal("0")) + amount
 
     rt = RewardTransaction(
         user_id=user_id,
