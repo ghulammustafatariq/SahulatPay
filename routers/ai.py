@@ -59,6 +59,7 @@ async def _build_and_store_insights(
         existing.unusual_spending   = data.get("unusual_spending", [])
         existing.roast_content      = data.get("roast_content")
         existing.expires_at         = _utcnow() + timedelta(days=7)
+        existing.updated_at         = _utcnow()
         await db.commit()
         await db.refresh(existing)
         return existing
@@ -212,15 +213,17 @@ async def health_score(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Return health score + label. Generates insights if none exist yet."""
+    """Return health score + label. Respects 7-day cache — regenerates when expired."""
     existing = await _get_or_create_insight(db, current_user.id)
-    if not existing:
-        existing = await _build_and_store_insights(db, current_user.id, None)
+
+    if not existing or not existing.expires_at or existing.expires_at <= _utcnow():
+        existing = await _build_and_store_insights(db, current_user.id, existing)
 
     return {
         "health_score": existing.health_score,
         "health_label": existing.health_label,
         "expires_at":   existing.expires_at.isoformat() if existing.expires_at else None,
+        "cached":       True,
     }
 
 

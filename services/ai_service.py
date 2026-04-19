@@ -16,6 +16,11 @@ from config import settings
 from models.transaction import Transaction
 
 
+# ── Per-user transaction summary cache (30-min TTL, in-process) ───────────────
+_SUMMARY_CACHE: dict[str, tuple[datetime, dict]] = {}
+_SUMMARY_TTL = timedelta(minutes=30)
+
+
 # ── DeepSeek client ────────────────────────────────────────────────────────────
 def _get_client():
     """Return an OpenAI-SDK client pointed at DeepSeek. Raises if key not set."""
@@ -36,8 +41,17 @@ MODEL = "deepseek-chat"
 
 # ── Transaction summary builder ────────────────────────────────────────────────
 async def build_transaction_summary(user_id: UUID, db: AsyncSession) -> dict[str, Any]:
-    """Aggregate last 90 days of user's transactions for AI analysis."""
-    since = datetime.now(timezone.utc) - timedelta(days=90)
+    """Aggregate last 90 days of user's transactions for AI analysis.
+    Result is cached in-process for 30 minutes to avoid a full DB scan on every chat message.
+    """
+    cache_key = str(user_id)
+    _now = datetime.now(timezone.utc)
+    if cache_key in _SUMMARY_CACHE:
+        cached_at, cached_summary = _SUMMARY_CACHE[cache_key]
+        if _now - cached_at < _SUMMARY_TTL:
+            return cached_summary
+
+    since = _now - timedelta(days=90)
     result = await db.execute(
         select(Transaction).where(
             and_(
@@ -98,7 +112,7 @@ async def build_transaction_summary(user_id: UUID, db: AsyncSession) -> dict[str
     if prev_month_spend > 0:
         mom_change = round(float((this_month_spend - prev_month_spend) / prev_month_spend * 100), 1)
 
-    return {
+    summary = {
         "total_income":    float(total_income),
         "total_spending":  float(total_spending),
         "transaction_count": len(txns),
@@ -110,6 +124,8 @@ async def build_transaction_summary(user_id: UUID, db: AsyncSession) -> dict[str
         },
         "period_days": 90,
     }
+    _SUMMARY_CACHE[cache_key] = (_now, summary)
+    return summary
 
 
 # ── Insights generation ────────────────────────────────────────────────────────
