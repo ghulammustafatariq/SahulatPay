@@ -652,12 +652,24 @@ async def update_fcm_token(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-if settings.DEV_MODE:
-    @router.get("/dev/otp/{phone}")
-    async def dev_get_otp(phone: str):
-        from services.auth_service import DEV_FIXED_OTP
-        try:
-            phone = normalize_phone(phone)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        return {"phone": phone, "otp": DEV_FIXED_OTP}
+# GET /auth/dev/otp  — DEV_MODE only: returns the last OTP sent to a phone
+# Android dev builds call this to auto-fill the OTP input field.
+# This endpoint returns 404 in production (DEV_MODE=False).
+# ══════════════════════════════════════════════════════════════════════════════
+@router.get("/dev/otp", include_in_schema=False)
+async def dev_get_otp(phone: str):
+    if not settings.DEV_MODE:
+        raise HTTPException(status_code=404, detail="Not found")
+    try:
+        phone_normalized = normalize_phone(phone)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid phone number format")
+    otp = DEV_OTP_STORE.get(phone_normalized)
+    if not otp:
+        raise HTTPException(
+            status_code=404,
+            detail="No OTP found for this phone. Make sure you registered/logged in first.",
+        )
+    return {"otp": otp, "phone": phone_normalized}
+
+
