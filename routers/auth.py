@@ -4,6 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config   import settings
@@ -200,7 +201,11 @@ async def register(
         is_verified        = True,
     )
     db.add(user)
-    await db.flush()
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="Phone or email already registered")
 
     # Wallet with tier-1 limit
     db.add(Wallet(user_id=user.id, daily_limit=TIER_LIMITS[1]))
@@ -215,7 +220,11 @@ async def register(
         is_trusted         = True,
         trusted_at         = _utcnow(),
     ))
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=409, detail="Phone or email already registered")
     await db.refresh(user)
 
     # Auto-login — issue tokens
