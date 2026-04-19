@@ -116,8 +116,22 @@ async def create_superuser(db_url: str):
                 """),
                 {"phone": phone, "name": full_name, "ph": password_hash}
             )
+            # Fetch the new user id and create a wallet row
+            row = (await session.execute(
+                text("SELECT id FROM users WHERE phone_number = :phone"),
+                {"phone": phone},
+            )).fetchone()
+            if row:
+                await session.execute(
+                    text("""
+                        INSERT INTO wallets (user_id, balance, daily_spent)
+                        VALUES (:uid, 0, 0)
+                        ON CONFLICT (user_id) DO NOTHING
+                    """),
+                    {"uid": row[0]},
+                )
             await session.commit()
-            print(f"\n✅  Superuser '{full_name}' ({phone}) created successfully.")
+            print(f"\n✅  Superuser '{full_name}' ({phone}) created successfully with wallet.")
 
     await engine.dispose()
 
